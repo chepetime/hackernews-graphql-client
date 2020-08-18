@@ -13,7 +13,7 @@ import App from "components/App/App";
 import * as serviceWorker from "serviceWorker";
 
 const httpLink = createHttpLink({
-  uri: "http://localhost:4000",
+  uri: "https://shrouded-earth-48074.herokuapp.com/",
 });
 
 const authLink = setContext((_, { headers }) => {
