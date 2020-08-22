@@ -1,10 +1,10 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { AUTH_TOKEN } from "utils/constants";
+import { useAuth } from "context/auth";
 
-export default function Header(props) {
-  const authToken = localStorage.getItem(AUTH_TOKEN);
+export default function Header() {
+  const { authToken, setAuthToken } = useAuth();
 
   return (
     <div className="flex pa1 justify-between nowrap orange">
@@ -12,6 +12,10 @@ export default function Header(props) {
         <div className="fw7 mr1">Hacker News</div>
         <Link to="/" className="ml1 no-underline black">
           new
+        </Link>
+        <div className="ml1">|</div>
+        <Link to="/search" className="ml1 no-underline black">
+          search
         </Link>
         {authToken && (
           <div className="flex">
@@ -24,14 +28,16 @@ export default function Header(props) {
       </div>
       <div className="flex flex-fixed">
         {authToken ? (
-          <div
-            className="ml1 pointer black"
+          <Link
+            to="/"
+            className="ml1 no-underline black"
             onClick={() => {
-              localStorage.removeItem(AUTH_TOKEN);
+              setAuthToken(false);
             }}
           >
+            {" "}
             logout
-          </div>
+          </Link>
         ) : (
           <Link to="/login" className="ml1 no-underline black">
             login

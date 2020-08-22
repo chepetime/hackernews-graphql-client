@@ -1,21 +1,16 @@
 import React, { useState } from "react";
-import { Mutation } from "react-apollo";
-import gql from "graphql-tag";
-
-const POST_MUTATION = gql`
-  mutation PostMutation($description: String!, $url: String!) {
-    post(description: $description, url: $url) {
-      id
-      createdAt
-      url
-      description
-    }
-  }
-`;
+import { useMutation } from "@apollo/client";
+import { POST_MUTATION } from "graphql/mutations";
 
 export default function CreateLink({ history }) {
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
+
+  const [postMutation] = useMutation(POST_MUTATION, {
+    onCompleted() {
+      history.push("/");
+    },
+  });
 
   return (
     <div>
@@ -35,13 +30,10 @@ export default function CreateLink({ history }) {
           placeholder="The URL for the link"
         />
       </div>
-      <Mutation
-        mutation={POST_MUTATION}
-        variables={{ description, url }}
-        onCompleted={() => history.push("/")}
-      >
-        {(postMutation) => <button onClick={postMutation}>Submit</button>}
-      </Mutation>
+
+      <button onClick={() => postMutation({ variables: { description, url } })}>
+        Submit
+      </button>
     </div>
   );
 }

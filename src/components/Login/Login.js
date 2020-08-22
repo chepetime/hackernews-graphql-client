@@ -1,40 +1,35 @@
-import React, { useState } from "react";
-import { AUTH_TOKEN } from "utils/constants";
+import React, { useState, useEffect } from "react";
+import { useMutation } from "@apollo/client";
+import { SIGNUP_MUTATION, LOGIN_MUTATION } from "graphql/mutations";
 
-import { Mutation } from "react-apollo";
-import gql from "graphql-tag";
-
-const SIGNUP_MUTATION = gql`
-  mutation SignupMutation($email: String!, $password: String!, $name: String!) {
-    signup(email: $email, password: $password, name: $name) {
-      token
-    }
-  }
-`;
-
-const LOGIN_MUTATION = gql`
-  mutation LoginMutation($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      token
-    }
-  }
-`;
+import { useAuth } from "context/auth";
 
 export default function Login(props) {
   const [login, setLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const { authToken, setAuthToken } = useAuth();
 
-  const saveUserData = (token) => {
-    localStorage.setItem(AUTH_TOKEN, token);
-  };
-
-  const confirm = (data) => {
+  const onCompleted = (data) => {
     const { token } = login ? data.login : data.signup;
-    saveUserData(token);
+    setAuthToken(token);
     props.history.push(`/`);
   };
+
+  const [signupMutation] = useMutation(SIGNUP_MUTATION, {
+    onCompleted,
+  });
+
+  const [loginMutation] = useMutation(LOGIN_MUTATION, {
+    onCompleted,
+  });
+
+  useEffect(() => {
+    if (authToken) {
+      props.history.push(`/`);
+    }
+  }, [authToken, props.history]);
 
   return (
     <div>
@@ -62,17 +57,26 @@ export default function Login(props) {
         />
       </div>
       <div className="flex mt3">
-        <Mutation
-          mutation={login ? LOGIN_MUTATION : SIGNUP_MUTATION}
-          variables={{ email, password, name }}
-          onCompleted={(data) => confirm(data)}
-        >
-          {(mutation) => (
-            <div className="pointer mr2 button" onClick={mutation}>
-              {login ? "login" : "create account"}
-            </div>
-          )}
-        </Mutation>
+        {login && (
+          <div
+            className="pointer mr2 button"
+            onClick={() =>
+              loginMutation({ variables: { email, password, name } })
+            }
+          >
+            login
+          </div>
+        )}
+        {!login && (
+          <div
+            className="pointer mr2 button"
+            onClick={() =>
+              signupMutation({ variables: { email, password, name } })
+            }
+          >
+            login
+          </div>
+        )}
         <div
           className="pointer button"
           onClick={() => setLogin((login) => !login)}

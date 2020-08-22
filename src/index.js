@@ -1,11 +1,18 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
-import { ApolloProvider } from "react-apollo";
-import { ApolloClient } from "apollo-client";
-import { createHttpLink } from "apollo-link-http";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { setContext } from "apollo-link-context";
+import {
+  ApolloProvider,
+  ApolloClient,
+  createHttpLink,
+  InMemoryCache,
+  split,
+} from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
+import { WebSocketLink } from "@apollo/client/link/ws";
+import { getMainDefinition } from "@apollo/client/utilities";
+
+import AuthContextProvider from "providers/AuthContextProvider";
 import { AUTH_TOKEN } from "utils/constants";
 
 import "styles/index.css";
@@ -13,8 +20,27 @@ import App from "components/App/App";
 import * as serviceWorker from "serviceWorker";
 
 const httpLink = createHttpLink({
-  uri: "https://shrouded-earth-48074.herokuapp.com/",
+  uri: "https://shrouded-earth-48074.herokuapp.com",
 });
+
+const wsLink = new WebSocketLink({
+  uri: `ws://shrouded-earth-48074.herokuapp.com`,
+  options: {
+    reconnect: true,
+  },
+});
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query);
+    return (
+      definition.kind === "OperationDefinition" &&
+      definition.operation === "subscription"
+    );
+  },
+  wsLink,
+  httpLink
+);
 
 const authLink = setContext((_, { headers }) => {
   const token = localStorage.getItem(AUTH_TOKEN);
@@ -27,17 +53,34 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: authLink.concat(splitLink),
   cache: new InMemoryCache(),
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "all",
+    },
+    query: {
+      fetchPolicy: "cache-and-network",
+      errorPolicy: "all",
+    },
+    mutate: {
+      errorPolicy: "all",
+    },
+  },
 });
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <ApolloProvider client={client}>
-        <App />
-      </ApolloProvider>
-    </Router>
+    <AuthContextProvider>
+      <Router>
+        <ApolloProvider client={client}>
+          <Suspense fallback={<div className="AppLoading"></div>}>
+            <App />
+          </Suspense>
+        </ApolloProvider>
+      </Router>
+    </AuthContextProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
