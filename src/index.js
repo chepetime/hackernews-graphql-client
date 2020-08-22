@@ -24,7 +24,7 @@ const httpLink = createHttpLink({
 });
 
 const wsLink = new WebSocketLink({
-  uri: `ws://shrouded-earth-48074.herokuapp.com`,
+  uri: `wss://shrouded-earth-48074.herokuapp.com`,
   options: {
     reconnect: true,
   },
