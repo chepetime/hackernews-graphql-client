@@ -8,9 +8,62 @@ import {
 
 import Link from "components/Link/Link";
 
-const LinkList = () => {
-  const { subscribeToMore, loading, error, data } = useQuery(FEED_QUERY);
+import { LINKS_PER_PAGE } from "utils/constants";
 
+const LinkList = ({ ...props }) => {
+  const isNewPage = props.location.pathname.includes("new");
+
+  /**
+   * [getQueryVariables description]
+   */
+  function getQueryVariables() {
+    const page = parseInt(props.match.params.page, 10);
+    const skip = isNewPage ? (page - 1) * LINKS_PER_PAGE : 0;
+    const take = isNewPage ? LINKS_PER_PAGE : 100;
+    const orderBy = isNewPage ? { createdAt: "desc" } : { createdAt: "asc" };
+    return { take, skip, orderBy };
+  }
+
+  /***
+   * [getLinksToRender description]
+   */
+  function getLinksToRender(links) {
+    if (!links) return [];
+    if (isNewPage) return links;
+    const rankedLinks = links.slice();
+    rankedLinks.sort((l1, l2) => l2.votes.length - l1.votes.length);
+    return rankedLinks;
+  }
+
+  /**
+   * [nextPage description]
+   */
+  function nextPage(data) {
+    const page = parseInt(props.match.params.page, 10);
+    if (page <= data.feed.count / LINKS_PER_PAGE) {
+      const nextPage = page + 1;
+      props.history.push(`/new/${nextPage}`);
+    }
+  }
+
+  /**
+   * [previousPage description]
+   */
+  function previousPage() {
+    const page = parseInt(props.match.params.page, 10);
+    if (page > 1) {
+      const previousPage = page - 1;
+      props.history.push(`/new/${previousPage}`);
+    }
+  }
+
+  const { subscribeToMore, loading, error, data } = useQuery(FEED_QUERY, {
+    variables: getQueryVariables(),
+  });
+
+  /**
+   * [subscribeToNewLinks description]
+   */
   const subscribeToNewLinks = subscribeToMore({
     document: NEW_LINKS_SUBSCRIPTION,
     updateQuery: (prev, { subscriptionData }) => {
@@ -33,6 +86,10 @@ const LinkList = () => {
     document: NEW_VOTES_SUBSCRIPTION,
   });
 
+  const pageIndex = props.match.params.page
+    ? (props.match.params.page - 1) * LINKS_PER_PAGE
+    : 0;
+
   useEffect(() => {
     let isMounted = true;
     if (isMounted) {
@@ -50,9 +107,19 @@ const LinkList = () => {
       {error && <span>Error</span>}
       {data &&
         data?.feed?.links &&
-        data.feed.links.map((link, index) => (
-          <Link key={link.id} link={link} index={index} />
+        getLinksToRender(data?.feed?.links).map((link, index) => (
+          <Link key={link.id} link={link} index={index + pageIndex} />
         ))}
+      {isNewPage && (
+        <div className="flex ml4 mv3 gray">
+          <div className="pointer mr2" onClick={() => previousPage()}>
+            Previous
+          </div>
+          <div className="pointer" onClick={() => nextPage(data)}>
+            Next
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -11,10 +11,18 @@ export default function Login(props) {
   const [name, setName] = useState("");
   const { authToken, setAuthToken } = useAuth();
 
+  const isLoggedIn =
+    authToken &&
+    authToken !== "false" &&
+    authToken !== "undefined" &&
+    authToken !== "";
+
   const onCompleted = (data) => {
-    const { token } = login ? data.login : data.signup;
-    setAuthToken(token);
-    props.history.push(`/`);
+    const res = login ? data.login : data.signup || false;
+    if (res?.token) {
+      setAuthToken(res.token);
+      props.history.push(`/`);
+    }
   };
 
   const [signupMutation] = useMutation(SIGNUP_MUTATION, {
@@ -26,10 +34,10 @@ export default function Login(props) {
   });
 
   useEffect(() => {
-    if (authToken) {
+    if (isLoggedIn) {
       props.history.push(`/`);
     }
-  }, [authToken, props.history]);
+  }, [isLoggedIn, props.history]);
 
   return (
     <div>

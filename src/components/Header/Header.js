@@ -6,6 +6,12 @@ import { useAuth } from "context/auth";
 export default function Header() {
   const { authToken, setAuthToken } = useAuth();
 
+  const isLoggedIn =
+    authToken &&
+    authToken !== "false" &&
+    authToken !== "undefined" &&
+    authToken !== "";
+
   return (
     <div className="flex pa1 justify-between nowrap orange">
       <div className="flex flex-fixed black">
@@ -14,10 +20,14 @@ export default function Header() {
           new
         </Link>
         <div className="ml1">|</div>
+        <Link to="/top" className="ml1 no-underline black">
+          top
+        </Link>
+        <div className="ml1">|</div>
         <Link to="/search" className="ml1 no-underline black">
           search
         </Link>
-        {authToken && (
+        {isLoggedIn && (
           <div className="flex">
             <div className="ml1">|</div>
             <Link to="/create" className="ml1 no-underline black">
@@ -27,7 +37,7 @@ export default function Header() {
         )}
       </div>
       <div className="flex flex-fixed">
-        {authToken ? (
+        {isLoggedIn ? (
           <Link
             to="/"
             className="ml1 no-underline black"

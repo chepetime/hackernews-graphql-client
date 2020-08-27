@@ -1,8 +1,9 @@
 import { gql } from "@apollo/client";
 
 export const FEED_QUERY = gql`
-  {
-    feed {
+  query FeedQuery($skip: Int!, $take: Int!, $orderBy: LinkOrderByInput) {
+    feed(skip: $skip, take: $take, orderBy: $orderBy) {
+      count
       links {
         id
         createdAt
