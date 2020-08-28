@@ -4,7 +4,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 
 import AuthContextProvider from "providers/AuthContextProvider";
 
-import "styles/index.css";
+import "styles/tailwind.output.css";
 import App from "components/App/App";
 import ApolloWrapper from "components/ApolloWrapper/ApolloWrapper";
 

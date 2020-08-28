@@ -103,19 +103,28 @@ const LinkList = ({ ...props }) => {
 
   return (
     <>
-      {loading && !data && <span>Loading</span>}
-      {error && <span>Error</span>}
-      {data &&
-        data?.feed?.links &&
-        getLinksToRender(data?.feed?.links).map((link, index) => (
-          <Link key={link.id} link={link} index={index + pageIndex} />
-        ))}
+      <div className="mx-auto py-4 px-2 bg-white">
+        {loading && !data && <span>Loading</span>}
+        {error && <span>Error</span>}
+
+        {data &&
+          data?.feed?.links &&
+          getLinksToRender(data?.feed?.links).map((link, index) => (
+            <Link key={link.id} link={link} index={index + pageIndex} />
+          ))}
+      </div>
       {isNewPage && (
-        <div className="flex ml4 mv3 gray">
-          <div className="pointer mr2" onClick={() => previousPage()}>
+        <div className="mx-auto flex py-4 px-8 bg-white rounded-lg m-3">
+          <div
+            className="inline-block rounded py-2 px-4 mr-2 bg-gray-400 hover:bg-orange-500 text-white text-gray-800 hover:text-orange-900 cursor-pointer"
+            onClick={() => previousPage()}
+          >
             Previous
           </div>
-          <div className="pointer" onClick={() => nextPage(data)}>
+          <div
+            className="inline-block rounded py-2 px-4 mr-2 bg-gray-400 hover:bg-orange-500 text-white text-gray-800 hover:text-orange-900 cursor-pointer"
+            onClick={() => nextPage(data)}
+          >
             Next
           </div>
         </div>

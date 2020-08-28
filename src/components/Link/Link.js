@@ -11,24 +11,31 @@ const Link = ({ link, index }) => {
   });
   const authToken = localStorage.getItem(AUTH_TOKEN);
 
+  const isLoggedIn =
+    authToken &&
+    authToken !== "false" &&
+    authToken !== "undefined" &&
+    authToken !== "";
+
   return (
-    <div className="flex mt2 items-start">
-      <div className="flex items-center">
+    <div className="mx-auto flex py-2 px-6 bg-white rounded-lg">
+      <div
+        className="flex bg-blue-200 hover:bg-blue-500 p-3 mr-2 rounded-lg text-blue-500 hover:text-blue-100 cursor-pointer h-12 max-h-full"
+        onClick={() =>
+          isLoggedIn
+            ? voteMutation({ variables: { linkId: link.id } })
+            : () => {}
+        }
+      >
         <span className="gray">{(index || 0) + 1}.</span>
-        {authToken && (
-          <div
-            className="ml1 gray f11"
-            onClick={() => voteMutation({ variables: { linkId: link.id } })}
-          >
-            ▲
-          </div>
-        )}
+        {isLoggedIn && <div className="">▲</div>}
       </div>
-      <div className="ml1">
+      <div className="px-2">
         <div>
-          {link?.description} ({link?.url})
+          <h2 className="text-lg">{link?.description}</h2>
+          <span className="text-sm">({link?.url})</span>
         </div>
-        <div className="f6 lh-copy gray">
+        <div className="text-base">
           {link?.votes?.length || 0} votes | by{" "}
           {link?.postedBy ? link?.postedBy.name : "Unknown"}{" "}
           {timeDifferenceForDate(link?.createdAt)}

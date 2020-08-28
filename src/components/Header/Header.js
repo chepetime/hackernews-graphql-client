@@ -13,47 +13,65 @@ export default function Header() {
     authToken !== "";
 
   return (
-    <div className="flex pa1 justify-between nowrap orange">
-      <div className="flex flex-fixed black">
-        <div className="fw7 mr1">Hacker News</div>
-        <Link to="/" className="ml1 no-underline black">
-          new
-        </Link>
-        <div className="ml1">|</div>
-        <Link to="/top" className="ml1 no-underline black">
-          top
-        </Link>
-        <div className="ml1">|</div>
-        <Link to="/search" className="ml1 no-underline black">
-          search
-        </Link>
-        {isLoggedIn && (
-          <div className="flex">
-            <div className="ml1">|</div>
-            <Link to="/create" className="ml1 no-underline black">
-              submit
+    <>
+      <nav className="flex items-center justify-between flex-wrap bg-orange-500 pt-2 pb-2 pr-6 pl-6">
+        <div className="flex items-center flex-shrink-0 text-white mr-6">
+          <Link to="/" className="font-semibold text-xl tracking-tight">
+            Hacker News Mx
+          </Link>
+        </div>
+        <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
+          <div className="text-sm lg:flex-grow">
+            <Link
+              to="/"
+              className="block p-4 lg:inline-block lg:mt-0 text-orange-800 hover:text-white mr-4"
+            >
+              new
             </Link>
+
+            <Link
+              to="/top"
+              className="block p-4 lg:inline-block lg:mt-0 text-orange-800 hover:text-white mr-4"
+            >
+              top
+            </Link>
+            <Link
+              to="/search"
+              className="block p-4 lg:inline-block lg:mt-0 text-orange-800 hover:text-white mr-4"
+            >
+              search
+            </Link>
+            {isLoggedIn && (
+              <Link
+                to="/create"
+                className="block p-4 lg:inline-block lg:mt-0 text-orange-800 hover:text-white mr-4"
+              >
+                submit
+              </Link>
+            )}
           </div>
-        )}
-      </div>
-      <div className="flex flex-fixed">
-        {isLoggedIn ? (
-          <Link
-            to="/"
-            className="ml1 no-underline black"
-            onClick={() => {
-              setAuthToken(false);
-            }}
-          >
-            {" "}
-            logout
-          </Link>
-        ) : (
-          <Link to="/login" className="ml1 no-underline black">
-            login
-          </Link>
-        )}
-      </div>
-    </div>
+          <div>
+            {isLoggedIn ? (
+              <Link
+                to="/"
+                className="inline-block border border-orange-500 rounded py-2 px-4 bg-orange-700 hover:bg-orange-300 text-white"
+                onClick={() => {
+                  setAuthToken(false);
+                }}
+              >
+                logout
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="inline-block border border-orange-500 rounded py-2 px-4 bg-orange-700 hover:bg-orange-300 text-white"
+              >
+                login
+              </Link>
+            )}
+          </div>
+        </div>
+      </nav>
+    </>
   );
 }
